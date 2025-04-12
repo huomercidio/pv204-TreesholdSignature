@@ -1,6 +1,6 @@
 # pv204-TreesholdSignature
 
-🚀 # Secure Nostr Event Signing with Threshold Cryptography
+## 🚀 Secure Nostr Event Signing with Threshold Cryptography
 
 **Overview**
 
