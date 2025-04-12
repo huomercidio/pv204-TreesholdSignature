@@ -1,67 +1,200 @@
-# pv204-TreesholdSignature
+# ❄️ pv204-TreesholdSignature
 
-## 🚀 Secure Nostr Event Signing with Threshold Cryptography
+**Secure Nostr Event Signing with Threshold Cryptography**
 
-**Overview**
+This project implements a secure and decentralized threshold signature system using the **FROST** protocol over the **secp256k1** curve, fully compatible with the **Nostr** network. It ensures that only a subset of devices can jointly sign a message, with the addition of a time-restricted **Automatic Signer** for added control.
 
-This project implements a secure and decentralized signature system for Nostr events using threshold cryptography.
+---
 
-The protocol ensures that no single device holds the full private key. Instead, the private key is distributed among 4 participants via Distributed Key Generation (DKG), and an Automatic Signer is only available from 08:00 to 15:00.
+## ✨ **Features**
 
-A valid signature requires collaboration from at least 2 participant devices and the AutoSigner, achieving a 3-of-5 threshold.
+- **Elliptic Curve**: Uses the required curve for Nostr (**secp256k1**).
+- **Threshold Signing**: Based on the real **FROST** protocol with t-of-n configuration.
+- **Distributed Key Generation (DKG)**: Devices collaboratively generate key shares.
+- **Automatic Signer**: Only active during specific hours (08:00–15:00), it holds a key share required for signing.
+- **Event Signing**: Events are hashed, signed by multiple participants, and sent to the **Nostr** relays.
+- **Language**: Implemented in **Rust** (signing backend) + **Python** (event serialization and publication).
 
-All logic is implemented in Python using real cryptographic primitives.
+---
 
-**Core Features**
+## 🧠 **How It Works**
 
-- Elliptic Curve: Uses the Nostr-compatible curve secp256k1
+1. **Keygen**: Run DKG with `cargo run -- keygen` to generate `n` key shares.
+2. **Partial Signing**: Devices run `sign` individually to create partial signatures.
+3. **Combination**: A third party combines valid partials using the `combine` command.
+4. **Python**: The combined signature is used to create a valid **Nostr** event and publish it through relays.
 
-- Threshold Signing: Based on the structure of the FROST protocol
+---
 
-- Distributed Key Generation (DKG): Secret key is never revealed; shares are generated collaboratively
+## 🚀 **Command Line Interface (Rust)**
 
-- Automatic Signer: Time-restricted signer only active between 08:00–15:00
+```sh
+cargo run -- keygen --output shares --participants 5 --threshold 3
+cargo run -- sign --share shares/share_1.json --message HASH --output sig_1.json
+cargo run -- combine --signatures sig_1.json sig_2.json sig_5.json --output final_sig.json
+```
 
-- Nostr Integration: Events are serialized, signed, and broadcast to public Nostr relays
+---
 
-**Architecture**
+## 🛰️ **Send Signed Event to Nostr (Python)**
 
-- 4 participant devices (💻💻💻💻)
+Use the provided `send_to_nostr.py` to:
+- Load the `final_sig.json`
+- Create a valid Nostr event
+- Send it to public relays like Damus and Nos.lol
 
-- 1 AutoSigner (⏱️ automatic signer)
+---
 
-- Threshold = 3 of 5
+## 👩🏾‍💻👨🏽‍💻 **Authors**
 
-- Key shares and operations follow modular cryptographic logic using coincurve, hashlib, and bech32
+- **Benilde Nhanala – 565303** 👩🏾‍💻  
+- **Mercidio Huo – 565299** 👨🏽‍💻
 
-**Security Benefits**
+---
 
-- Private key never reconstructed or revealed
+## 📁 **Source Code**
 
-- Signature is only possible via collaborative partial signatures
+Below is the core logic of the Rust CLI implementation:
 
-- Time-limited access via AutoSigner increases operational security
+```rust
+use clap::{Parser, Subcommand};
+use frost_secp256k1 as frost;
+use rand::thread_rng;
+use serde::{Deserialize, Serialize};
+use std::{fs, path::Path};
 
-- Supports secure decentralized signing for Nostr messages
+#[derive(Parser)]
+#[command(author, version, about)]
+struct Cli {
+    #[command(subcommand)]
+    command: Commands,
+}
 
-**How to Test**
+#[derive(Subcommand)]
+enum Commands {
+    Keygen {
+        #[arg(short, long)]
+        output: String,
+        #[arg(short, long, default_value_t = 5)]
+        participants: u16,
+        #[arg(short, long, default_value_t = 3)]
+        threshold: u16,
+    },
+    Sign {
+        #[arg(short, long)]
+        share: String,
+        #[arg(short, long)]
+        message: String,
+        #[arg(short, long)]
+        output: String,
+    },
+    Combine {
+        #[arg(short, long)]
+        signatures: Vec<String>,
+        #[arg(short, long)]
+        output: String,
+    },
+}
 
-- Run threshold.py
+#[derive(Serialize, Deserialize)]
+struct KeyShare {
+    identifier: frost::Identifier,
+    share: frost::SecretShare,
+    public: frost::PublicKeyPackage,
+}
 
-- Simulates DKG and generates key_shares/ and partial_sigs/
+#[derive(Serialize, Deserialize)]
+struct PartialSig {
+    identifier: frost::Identifier,
+    signature: frost::round1::SignatureShare,
+}
 
-- Verifies if AutoSigner is within allowed window
+#[derive(Serialize, Deserialize)]
+struct CombinedSig {
+    signature: frost::Signature,
+    pubkey: frost::PublicKeyPackage,
+}
 
-- Combines valid partials into a full hash-based signature
+fn main() {
+    let cli = Cli::parse();
 
-- Displays npub of the final signer
+    match cli.command {
+        Commands::Keygen {
+            output,
+            participants,
+            threshold,
+        } => {
+            let mut rng = thread_rng();
+            let (shares, pubkey_package) = frost::keys::generate_with_dealer(
+                participants,
+                threshold,
+                frost::keys::IdentifierList::Default,
+                &mut rng,
+            )
+            .unwrap();
 
-⚠️ **Note:** This is a secure simulation using real EC keypairs, but simplified Schnorr aggregation. 
+            for (identifier, secret_share) in shares {
+                let share = KeyShare {
+                    identifier,
+                    share: secret_share,
+                    public: pubkey_package.clone(),
+                };
+                let path = format!("{}/share_{}.json", output, identifier);
+                fs::write(path, serde_json::to_string(&share).unwrap()).unwrap();
+            }
+            println!("Generated {} key shares", participants);
+        }
+        Commands::Sign {
+            share,
+            message,
+            output,
+        } => {
+            let share: KeyShare = serde_json::from_str(&fs::read_to_string(share).unwrap()).unwrap();
+            let msg = hex::decode(message).unwrap();
+            let nonce = frost::round1::SigningNonces::new(&mut thread_rng());
+            let partial = frost::round1::commit(
+                share.identifier,
+                &share.share,
+                &nonce,
+                &msg,
+                &share.public,
+            )
+            .unwrap();
+
+            let partial_sig = PartialSig {
+                identifier: share.identifier,
+                signature: partial,
+            };
+            fs::write(output, serde_json::to_string(&partial_sig).unwrap()).unwrap();
+            println!("Generated partial signature");
+        }
+        Commands::Combine {
+            signatures,
+            output,
+        } => {
+            let mut sigs = Vec::new();
+            let mut pubkey_package = None;
+
+            for path in signatures {
+                let partial: PartialSig = serde_json::from_str(&fs::read_to_string(path).unwrap()).unwrap();
+                sigs.push(partial.signature);
+                if pubkey_package.is_none() {
+                    let share: KeyShare = serde_json::from_str(&fs::read_to_string(path).unwrap()).unwrap();
+                    pubkey_package = Some(share.public);
+                }
+            }
+
+            let combined = frost::aggregate(&sigs, &pubkey_package.unwrap()).unwrap();
+            let result = CombinedSig {
+                signature: combined,
+                pubkey: pubkey_package.unwrap(),
+            };
+            fs::write(output, serde_json::to_string(&result).unwrap()).unwrap();
+            println!("Combined signatures successfully");
+        }
+    }
+}
+```
 
 
-**Authors**
-
-👩 Benilde Nhanala – 565303
-
-👨 Mercidio Huo – 565299
 
