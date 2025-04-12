@@ -1,80 +1,28 @@
-# pv204-TreesholdSignature
-Secure Nostr Event Signing with Threshold Cryptography
+#pv204-TreesholdSignature
+🚀 #Secure Nostr Event Signing with Threshold Cryptography
+🔍 #Overview
+This project implements a secure and decentralized signature system for Nostr events using threshold cryptography.
 
-This project implements a secure and decentralized system for signing Nostr events using threshold cryptography. It is designed to work with 3 devices, where at least 2 active devices plus an Automatic Signer are required to produce valid signatures. The Automatic Signer is only available during specific hours, adding a temporal access control layer to the signing process.
+The protocol ensures that no single device holds the full private key. Instead, the private key is distributed among 4 participants via Distributed Key Generation (DKG), and an Automatic Signer is only available from 08:00 to 15:00.
 
-# Core Features
+A valid signature requires collaboration from at least 2 participant devices and the AutoSigner, achieving a 3-of-5 threshold.
 
-•	Elliptic Curve: The project uses the correct curve required by Nostr: secp256k1.
+🔐 #Core Features
+✅ **Elliptic Curve: Uses the Nostr-compatible curve secp256k1
 
-•	Threshold Signing: Based on the FROST protocol (Flexible Round-Optimized Schnorr Threshold signatures).
+🔁 Threshold Signing: Based on the structure of the FROST protocol (Flexible Round-Optimized Schnorr Threshold signatures)
 
-•	Distributed Key Generation (DKG): Key shares are generated using DKG.
+🧩 Distributed Key Generation (DKG): Secret key is never revealed; shares are generated collaboratively
 
-•	Automatic Signer: Participates in signing only during specific hours (08:00 to 15:00). If it is offline or out of schedule, signing will not proceed.
+⏰ Automatic Signer: Time-restricted signer only active between 08:00–15:00
 
-•	Nostr Integration: Events are serialized, signed, and published to the Nostr network via relays.
+📡 Nostr Integration: Events are serialized, signed, and broadcast to public Nostr relays (e.g., wss://relay.damus.io, wss://purplerelay.com, wss://nos.lol)
 
+⚙️ Architecture
+4 participant devices (💻💻💻💻)
 
-# Architecture
+1 AutoSigner (⏱️ automatic ♂️ or ♀️)
 
-•	Device Nodes
+Threshold = 3 of 5
 
-•	3 total nodes.
-
-•	Each holds a share of the secret key generated via DKG.
-
-•	Any 2 devices, together with the Automatic Signer, are required to produce a valid signature.
-
-
-# Threshold Signature Scheme
-
-•	DKG: Generates shares collaboratively across devices.
-
-•	Partial Signing: Each device creates a Schnorr partial signature using its share.
-
-•	Aggregation: Signatures are combined to form a final valid Schnorr signature(FROST Protocol).
-
-•	Automatic Signer
-
-  o	Holds one of the key shares.
-  
-  o	Only signs within the window from 08:00 to 15:00 (3 PM).
-  
-  o	Outside this window, it ignores signing requests.
-  
-  o	System is configured to require this signer for valid signature generation, even if 3 devices are online.
-
-
-# Event Creation Module
-
-•	Hashes event content.
-
-•	Serializes and formats events according to the Nostr protocol.
-
-•	Generates event ID based on content and public key.
-
-•	Nostr Communication.
-
-•	Signed events are sent to the decentralized Nostr network via public relays.
-
-# Nostr Compatibility
-
-•	Uses secp256k1 as required.
-
-•	Compatible with NIP-01 event structure.
-
-# Testing
-
-To simulate a signing round:
-
-•	Start all 3 devices (2 active, 1 Automatic Signer).
-
-•	Ensure the Automatic Signer is within the time window (08:00–15:00).
-
-•	Submit a Nostr event to be signed.
-
-  Verify that:
-  •	Only when at least 2 active devices + Automatic Signer respond, the signature is produced.
-  
-  •	Requests outside time window are rejected.
+All key shares and operations follow modular cryptographic logic using coincurve, hashlib, and bech32
