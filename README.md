@@ -1,6 +1,6 @@
-# 🔐 thresholdfrost
+# 🔐 Threshold Signature
 
-**thresholdfrost** is a Rust-powered Python extension that provides **real key generation for threshold signatures** using the [FROST](https://eprint.iacr.org/2020/852) protocol over the **secp256k1** elliptic curve.
+**Threshold Signature** is a Rust-powered Python extension that provides **real key generation for threshold signatures** using the [FROST](https://eprint.iacr.org/2020/852) protocol over the **secp256k1** elliptic curve.
 
 This tool enables decentralized signing setups, supporting secure generation of cryptographic key shares for a specified number of participants with a configurable threshold.
 
