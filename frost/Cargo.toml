@@ -1,0 +1,24 @@
+[package]
+name = "frost"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "frost"
+crate-type = ["cdylib"]
+
+[dependencies]
+pyo3 = { version = "0.21", features = ["extension-module"] }
+rand = "0.8"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+hex = "0.4"
+
+# Use the latest compatible version from crates.io or your local path/git
+frost-secp256k1 = { version = "0.5", features = ["serde"] }
+
+[build-dependencies]
+pyo3-build-config = "0.21"
+
+[package.metadata.maturin]
+name = "frost"
