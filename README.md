@@ -29,7 +29,7 @@ This tool enables decentralized signing setups, supporting secure generation of 
 
 ```bash
 git clone https://github.com/YOUR_USERNAME/pv204-TreesholdSignature.git
-cd pv204-TreesholdSignature/rustcore
+cd pv204-TreesholdSignature/frost
 
 # Create and activate a virtual environment
 python -m venv .venv
