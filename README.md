@@ -139,6 +139,7 @@ python auto_signer.py
 ---
 🧠 Concept: Simulating Multiple Devices
 
+
 In a threshold signature system, each device holds one share of the secret and should act independently—like its own signer.
 
 To simulate this behavior on one machine (for development/testing), we use:
@@ -146,8 +147,10 @@ To simulate this behavior on one machine (for development/testing), we use:
 1️⃣ auto_signer.py → Single Device Auto Signer
 This script:
 
-Loads environment variables from .env or any .env.<id> file.
+Loads environment variables from .env or any .env.<id> file
+.
 Checks the configured SIGN_START and SIGN_END time window.
+
 If the current time is allowed, it:
 Loads the configured share (from SHARE_ID)
 Signs any pending message that it hasn't signed yet
@@ -164,8 +167,9 @@ Calls auto_signer.py in a subprocess
 This simulates multiple devices running independently by calling auto_signer.py with different .env configurations.
 
 📌 Example Flow
-
+```bash
 python run_signers.py
+```
 Output:
 
 🚀 Starting multi-device auto signer simulation...
@@ -175,25 +179,27 @@ Here's a clean, Markdown-formatted version suitable for a README:
 
 This section shows how the auto signer works with multiple shares:
 
-#### ➤ SHARE_ID=1
 🔁 Running signer for SHARE_ID=1
+
 [2025-05-09 00:11:28] 🚦 Auto signer started for SHARE_ID=1
+
 [2025-05-09 00:11:28] ✅ Signed note ID 5 using share 1
 
 
-#### ➤ SHARE_ID=2
 🔁 Running signer for SHARE_ID=2
 [2025-05-09 00:11:29] 🚦 Auto signer started for SHARE_ID=2
 [2025-05-09 00:11:29] ✅ Signed note ID 5 using share 2
 
 
-#### ➤ SHARE_ID=3
 🔁 Running signer for SHARE_ID=3
+
 [2025-05-09 00:11:30] 🚦 Auto signer started for SHARE_ID=3
+
 [2025-05-09 00:11:30] ⏳ Outside signing window. Ignoring request.
 Here:
 
 Device 1 and 2 signed because they are inside the signing window.
+
 Device 3 ignored the request because it was outside the allowed time.
 
 ✅ Summary
