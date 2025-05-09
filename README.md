@@ -285,4 +285,5 @@ MIT — feel free to use and extend!
 ## 👨‍💻 Author
 
 Mercídio Huo — Built for PV204 / Threshold Crypto + Nostr Systems
+
 Benilde Nhanala — Built for PV204 / Threshold Crypto + Nostr Systems
