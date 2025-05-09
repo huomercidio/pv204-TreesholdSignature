@@ -29,8 +29,8 @@ To create a system that allows:
 ### 1️⃣ Clone the repository
 
 ```bash
-git clone https://github.com/yourname/nostr-frost-threshold-signer.git
-cd nostr-frost-threshold-signer
+git clone https://github.com/yourname/pv204-TreesholdSignature
+cd pv204-TreesholdSignature
 ```
 
 ### 2️⃣ Create and activate a virtual environment
