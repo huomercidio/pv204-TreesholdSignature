@@ -179,7 +179,9 @@ calling auto_signer.py with different .env configurations.
 ```bash
 python run_signers.py
 ```
+
 **Output:**
+```
 
 🚀 Starting multi-device auto signer simulation...
 
@@ -203,6 +205,7 @@ python run_signers.py
 
 [2025-05-09 00:11:30] ⏳ Outside signing window. Ignoring request.
 
+```
 Here:
 
 Device 1 and 2 signed because they are inside the signing window.
