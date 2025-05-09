@@ -121,7 +121,7 @@ python cli.py sign-partial --id 1 --share keys/3/secret_share.txt
 ## 📦 Broadcast a Message Once Threshold is Met
 
 ```bash
-python cli.py broadcast --id 4 --required_shares 3
+python cli.py broadcast --id 1 --required_shares 3
 ```
 
 📌 What it does:
