@@ -137,7 +137,7 @@ python auto_signer.py
 ➡️ Set up with `cron` or `systemd` to run every 5 mins.
 
 ---
-🧠 Concept: Simulating Multiple Devices
+**🧠 Concept: Simulating Multiple Devices**
 
 
 In a threshold signature system, each device holds one share of the secret and should act independently—like its own signer.
@@ -179,14 +179,9 @@ calling auto_signer.py with different .env configurations.
 ```bash
 python run_signers.py
 ```
-Output:
+**Output:**
 
 🚀 Starting multi-device auto signer simulation...
-Here's a clean, Markdown-formatted version suitable for a README:
-
-### 🔐 Auto Signer Log Example
-
-This section shows how the auto signer works with multiple shares:
 
 🔁 Running signer for SHARE_ID=1
 
