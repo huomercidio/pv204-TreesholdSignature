@@ -1,0 +1,18 @@
+[package]
+name = "frostpy"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "frostpy"
+crate-type = ["cdylib"]
+
+[dependencies]
+frost-secp256k1 = { version = "2.1.0", features = ["serde"] }
+frost-core = { version = "2.1.0", features = ["serde"] }
+base64 = "0.21"
+rand = "0.8"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+pyo3 = { version = "0.20", features = ["extension-module"] }
+hex = "0.4"
