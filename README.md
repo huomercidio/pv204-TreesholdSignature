@@ -144,12 +144,15 @@ In a threshold signature system, each device holds one share of the secret and s
 
 To simulate this behavior on one machine (for development/testing), we use:
 
+
 1️⃣ auto_signer.py → Single Device Auto Signer
+
 This script:
 
 Loads environment variables from .env or any .env.<id> file
 .
 Checks the configured SIGN_START and SIGN_END time window.
+
 
 If the current time is allowed, it:
 Loads the configured share (from SHARE_ID)
@@ -158,13 +161,19 @@ Logs the action to signed_notes.log
 It represents one device participating in signing.
 
 2️⃣ run_signers.py → Launcher for All Devices
+
 This script:
 
 Iterates over a list of device IDs (e.g., 1, 2, 3)
+
 For each ID:
 Temporarily sets SHARE_ID, SIGN_START, and SIGN_END via environment variables
+
 Calls auto_signer.py in a subprocess
-This simulates multiple devices running independently by calling auto_signer.py with different .env configurations.
+
+This simulates multiple devices running independently by 
+
+calling auto_signer.py with different .env configurations.
 
 📌 Example Flow
 ```bash
@@ -187,7 +196,9 @@ This section shows how the auto signer works with multiple shares:
 
 
 🔁 Running signer for SHARE_ID=2
+
 [2025-05-09 00:11:29] 🚦 Auto signer started for SHARE_ID=2
+
 [2025-05-09 00:11:29] ✅ Signed note ID 5 using share 2
 
 
@@ -196,17 +207,22 @@ This section shows how the auto signer works with multiple shares:
 [2025-05-09 00:11:30] 🚦 Auto signer started for SHARE_ID=3
 
 [2025-05-09 00:11:30] ⏳ Outside signing window. Ignoring request.
+
 Here:
 
 Device 1 and 2 signed because they are inside the signing window.
+
 
 Device 3 ignored the request because it was outside the allowed time.
 
 ✅ Summary
 
-Script	Role	How to Use
-auto_signer.py	Simulates one signer device	python auto_signer.py
-run_signers.py	Simulates multiple devices at once	python run_signers.py
+Script	
+Role	How to Use
+
+- auto_signer.py	Simulates one signer device	python auto_signer.py
+
+- run_signers.py	Simulates multiple devices at once	python run_signers.py
 
 
 
