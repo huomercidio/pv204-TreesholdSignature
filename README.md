@@ -169,19 +169,28 @@ python run_signers.py
 Output:
 
 🚀 Starting multi-device auto signer simulation...
+Here's a clean, Markdown-formatted version suitable for a README:
 
+### 🔐 Auto Signer Log Example
+
+This section shows how the auto signer works with multiple shares:
+
+#### ➤ SHARE_ID=1
 🔁 Running signer for SHARE_ID=1
 [2025-05-09 00:11:28] 🚦 Auto signer started for SHARE_ID=1
 [2025-05-09 00:11:28] ✅ Signed note ID 5 using share 1
-----------------------------------------
+
+
+#### ➤ SHARE_ID=2
 🔁 Running signer for SHARE_ID=2
 [2025-05-09 00:11:29] 🚦 Auto signer started for SHARE_ID=2
 [2025-05-09 00:11:29] ✅ Signed note ID 5 using share 2
-----------------------------------------
+
+
+#### ➤ SHARE_ID=3
 🔁 Running signer for SHARE_ID=3
 [2025-05-09 00:11:30] 🚦 Auto signer started for SHARE_ID=3
 [2025-05-09 00:11:30] ⏳ Outside signing window. Ignoring request.
-----------------------------------------
 Here:
 
 Device 1 and 2 signed because they are inside the signing window.
