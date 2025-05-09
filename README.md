@@ -18,6 +18,9 @@ To create a system that allows:
 ## 📦 Requirements
 
 - Python 3.9+
+- [Install Rust](https://www.rust-lang.org/tools/install)
+- Confirm with: `rustc --version`
+
 - Rust toolchain (`rustup`, `cargo`)
 - [`maturin`](https://github.com/PyO3/maturin) for Python-Rust bindings
 - Internet access (for broadcasting to Nostr relays)
@@ -83,13 +86,23 @@ python cli.py submit --note_content "teste"
 
 ## 🤖 Automatic Signing (on each device)
 
-Configure a `.env` file per device:
+Configure a `.env` file per device: choose your time signing
+
+#### Create `.env.1`, `.env.2`, `.env.3`...
 
 ```env
 SIGN_START=15:00
 SIGN_END=23:30
-SHARE_ID=3
+SHARE_ID=1
 ```
+
+Run:
+
+```bash
+python run_signers.py
+```
+
+This simulates all signers and respects each `.env.X` time window.
 
 Run:
 
@@ -108,15 +121,6 @@ python auto_signer.py
 
 ---
 
-## ✍️ Manual Signing (for testing)
-
-```bash
-python cli.py sign-partial --id 1 --share keys/1/secret_share.txt
-python cli.py sign-partial --id 1 --share keys/2/secret_share.txt
-python cli.py sign-partial --id 1 --share keys/3/secret_share.txt
-```
-
----
 
 ## 📦 Broadcast a Message Once Threshold is Met
 
@@ -149,7 +153,7 @@ python nostr.py
 ## ✅ Verifying a Signature
 
 ```bash
-python cli.py verify --note_content "Emergency broadcast message"
+python cli.py verify --note_content "teste"
 ```
 
 ---
@@ -171,10 +175,7 @@ python cli.py verify --note_content "Emergency broadcast message"
 ## 🔐 Security Notes
 
 - Never share your `secret_share.txt` files.
-- Do not commit `.env` or key files to GitHub.
-- Use secure transport when distributing shares.
 
----
 
 ## 🧪 Example Workflow
 
@@ -184,6 +185,15 @@ python cli.py verify --note_content "Emergency broadcast message"
 4. Signature is verified and sent to Nostr
 5. Everyone sees the signed message 🎉
 
+---
 
+## 🔒 License
+
+MIT — feel free to use and extend!
 
 ---
+
+## 👨‍💻 Author
+
+Mercídio Huo — Built for PV204 / Threshold Crypto + Nostr Systems
+Benilde Nhanala — Built for PV204 / Threshold Crypto + Nostr Systems
