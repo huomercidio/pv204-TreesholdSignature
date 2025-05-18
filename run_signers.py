@@ -1,21 +1,49 @@
 import os
 import subprocess
-import time
-from dotenv import dotenv_values
+import logging
+from typing import List
 
-SIGNER_SCRIPT = "auto_signer.py"
-env_files = [".env.1", ".env.2", ".env.3"]
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('signer_manager.log'),
+        logging.StreamHandler()
+    ]
+)
 
-print("🚀 Starting multi-device auto signer simulation...\n")
 
-for env_file in env_files:
-    env_values = dotenv_values(env_file)
-    share_id = env_values.get("SHARE_ID", "unknown")
-    print("🔁 Running signer for SHARE_ID={}".format(share_id))
+class SignerManager:
+    @staticmethod
+    def find_env_files() -> List[str]:
+        return sorted(
+            [f for f in os.listdir('.')
+             if f.startswith('.env.share') and f[len('.env.share'):].isdigit()],
+            key=lambda x: int(x.split('.env.share')[1]))
 
-    env = os.environ.copy()
-    env.update(env_values)  #
-    subprocess.call(["python", SIGNER_SCRIPT], env=env)
+    def run(self) -> None:
+        env_files = self.find_env_files()
+        if not env_files:
+            logging.error("No valid .env.share files found")
+            return
 
-    print("-" * 40)
-    time.sleep(1)
+        logging.info(f"Starting {len(env_files)} signers...")
+
+        try:
+            # Start all signers (they'll manage their own lifecycle)
+            for env_file in env_files:
+                subprocess.Popen(
+                    ["python", "auto_signer.py", "--env", env_file],
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    text=True,
+                    encoding='utf-8'
+                )
+                logging.info(f"Started signer from {env_file}")
+
+        except Exception as e:
+            logging.error(f"Failed to start signers: {str(e)}")
+
+
+if __name__ == "__main__":
+    SignerManager().run()
