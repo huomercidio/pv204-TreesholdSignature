@@ -1,66 +1,65 @@
-import os
 import json
+import os
+import shutil
 from frostpy import generate_keys_py
 
 SECRETS_DIR = "keys"
+ENV_TEMPLATE = """SHARE_ID={participant_id}
+THRESHOLD={threshold}
+SIGN_START=08:00
+SIGN_END=22:00
+POLL_INTERVAL=60
+"""
 
-def ensure_dir(path):
-    os.makedirs(path, exist_ok=True)
 
-def store_individual_share(participant_id, encoded_share):
-    dir_path = os.path.join(SECRETS_DIR, f"{participant_id}")
-    ensure_dir(dir_path)
-    file_path = os.path.join(dir_path, "secret_share.txt")
-    with open(file_path, "w") as f:
-        f.write(encoded_share)
-    print(f"✅ Saved share for participant {participant_id} → {file_path}")
+def generate_and_store_shares(n: int, t: int) -> None:
+    if t > n:
+        raise ValueError(f"Threshold {t} cannot exceed participants {n}")
 
-def store_pubkey_bundle(group_key_bundle):
-    ensure_dir(SECRETS_DIR)
-    file_path = os.path.join(SECRETS_DIR, "group_key_bundle.txt")
-    try:
-        with open(file_path, "w") as f:
-            f.write(group_key_bundle)
-        print(f"✅ Group public key package saved → {file_path}")
-    except Exception as e:
-        print(f"❌ Error saving public key package: {e}")
+    print(f"Generating {n} shares (threshold {t})...")
 
-def store_nostr_pubkey(group_key_bundle):
-    ensure_dir(SECRETS_DIR)
-    nostr_key_path = os.path.join(SECRETS_DIR, "public_key.txt")
-    try:
-        with open(nostr_key_path, "w") as f:
-            f.write(group_key_bundle)
-        print(f"✅ Group verifying key saved → {nostr_key_path}")
-    except Exception as e:
-        print(f"❌ Error saving Nostr public key: {e}")
+    # Clear old state
+    if os.path.exists(SECRETS_DIR):
+        shutil.rmtree(SECRETS_DIR)
+    for f in os.listdir('.'):
+        if f.startswith('.env.share'):
+            os.remove(f)
 
-def generate_and_store_shares(n: int, t: int):
-    print(f"🚀 Generating {n} FROST shares with threshold {t}...")
-    try:
-        raw_json = generate_keys_py(n, t)
-    except Exception as e:
-        print(f"❌ Error during key generation: {e}")
-        return
+    # Generate new keys
+    result = json.loads(generate_keys_py(n, t))
 
-    try:
-        result = json.loads(raw_json)
-        shares = result["shares"]
-        group_key_bundle = result["group_public_key"]
-        group_verifying_key = result["group_verifying_key"]
-    except Exception as e:
-        print(f"❌ JSON parsing error: {e}")
-        return
+    os.makedirs(SECRETS_DIR, exist_ok=True)
 
-    store_pubkey_bundle(group_key_bundle)
-    store_nostr_pubkey(group_verifying_key)
+    # Save group keys
+    with open(os.path.join(SECRETS_DIR, "group_key_bundle.txt"), 'w') as f:
+        f.write(result["group_public_key"])
 
-    for share in shares:
+    with open(os.path.join(SECRETS_DIR, "public_key.txt"), 'w') as f:
+        f.write(result["group_verifying_key"])
+
+    # Save participant shares
+    for share in result["shares"]:
         pid = share["participant_id"]
-        encoded = json.dumps(share["share"])
-        store_individual_share(pid, encoded)
+        share_dir = os.path.join(SECRETS_DIR, str(pid))
+        os.makedirs(share_dir, exist_ok=True)
 
-    print("✅ All shares and public key data saved successfully.")
+        with open(os.path.join(share_dir, "secret_share.txt"), 'w') as f:
+            json.dump(share["share"], f)
+
+        with open(f".env.share{pid}", 'w') as f:
+            f.write(ENV_TEMPLATE.format(
+                participant_id=pid,
+                threshold=t
+            ))
+
+    print(f"Successfully generated {n} shares")
+
 
 if __name__ == "__main__":
-    generate_and_store_shares(n=5, t=3)
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--n", type=int, required=True)
+    parser.add_argument("--t", type=int, required=True)
+    args = parser.parse_args()
+    generate_and_store_shares(args.n, args.t)
