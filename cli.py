@@ -120,7 +120,7 @@ if __name__ == "__main__":
     generate_parser.add_argument("--n", type=int, required=True, help="Number of participants")
     generate_parser.add_argument("--t", type=int, required=True, help="Signing required_shares")
 
-    submit_parser = subparsers.add_parser("submit", help="Submit a new emergency note_content")
+    submit_parser = subparsers.add_parser("submit", help="Submit a new note_content")
     submit_parser.add_argument("--note_content", type=str, required=True, help="Emergency note_content")
 
     list_parser = subparsers.add_parser("list", help="List pending note_contents")
