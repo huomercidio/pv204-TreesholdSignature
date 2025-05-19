@@ -82,7 +82,7 @@ def required_shares_sign_event(note_content: str, share_files: List[str], requir
         return None
 
 if __name__ == "__main__":
-    note_content = "Emergency broadcast: System going offline."
+    note_content = "Message signed in a distributed manner using threshold signatures!"
     required_shares = 2
     share_files = [
         os.path.join(SECRETS_DIR, "1", "secret_share.txt"),
